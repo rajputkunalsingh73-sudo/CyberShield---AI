@@ -1,0 +1,46 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#071019">
+<meta name="description" content="CyberShield AI — defensive web security assessment for authorized website owners.">
+<title>{% block title %}CyberShield AI{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="{% static 'css/app.css' %}" rel="stylesheet">
+{% block head %}{% endblock %}
+</head>
+<body class="{% if user.is_authenticated and request.path != '/' %}workspace-body{% else %}public-body{% endif %}">
+{% if user.is_authenticated and request.path != '/' %}
+<div class="workspace">
+<aside class="sidebar" id="sidebar">
+<a class="brand" href="{% url 'dashboard' %}"><span class="brand-mark">◇</span><span>CYBERSHIELD <b>AI</b></span></a>
+<div class="workspace-label">WORKSPACE <span>SECURE</span></div>
+<nav class="side-nav">
+<a href="{% url 'dashboard' %}" class="{% if request.path == '/dashboard/' %}active{% endif %}"><span>▦</span>Dashboard</a>
+<a href="{% url 'new_scan' %}" class="{% if request.path == '/scans/new/' %}active{% endif %}"><span>⌕</span>New scan<i class="nav-add">+</i></a>
+<a href="{% url 'scan_history' %}" class="{% if '/history/' in request.path %}active{% endif %}"><span>↺</span>Scan history</a>
+<a href="{% url 'vulnerabilities' %}" class="{% if '/vulnerabilities/' in request.path %}active{% endif %}"><span>◇</span>Vulnerabilities</a>
+<a href="{% url 'report_history' %}" class="{% if '/reports/' in request.path %}active{% endif %}"><span>▤</span>Reports</a>
+</nav>
+<div class="side-spacer"></div>
+<div class="sidebar-safety"><div class="safety-orbit">◇</div><div><b>Defensive mode</b><span>Safe checks only</span></div><i></i></div>
+<a href="{% url 'settings' %}" class="side-settings {% if '/settings/' in request.path %}active{% endif %}"><span>⚙</span>Settings</a>
+<div class="user-card"><div class="user-avatar">{{ user.first_name|default:user.username|slice:':1'|upper }}</div><div class="user-info"><b>{{ user.first_name|default:user.username }}</b><span>{{ user.email|default:user.username }}</span></div><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit" aria-label="Sign out">↗</button></form></div>
+</aside>
+<main class="workspace-main">
+<header class="workspace-topbar"><button id="sidebarToggle" class="mobile-toggle" type="button" aria-label="Toggle navigation">☰</button><div class="topbar-crumb"><span>CYBERSHIELD AI</span><i>/</i><b>{% if request.path == '/dashboard/' %}OVERVIEW{% elif '/new/' in request.path %}NEW ASSESSMENT{% elif '/history/' in request.path %}SCAN HISTORY{% elif '/vulnerabilities/' in request.path %}VULNERABILITIES{% elif '/reports/' in request.path %}REPORTS{% elif '/settings/' in request.path %}SETTINGS{% else %}ASSESSMENT RESULTS{% endif %}</b></div><div class="topbar-right"><span class="live-dot"></span><span>PROTECTED WORKSPACE</span><span class="topbar-separator"></span><span class="topbar-date">{% now 'D, d M Y' %}</span></div></header>
+{% if messages %}<div class="toast-stack">{% for message in messages %}<div class="toast-message toast-{{ message.tags }}"><span>{{ message }}</span><button type="button" onclick="this.parentElement.remove()" aria-label="Dismiss">×</button></div>{% endfor %}</div>{% endif %}
+{% else %}
+<header class="public-nav container"><a class="brand" href="{% url 'home' %}"><span class="brand-mark">◇</span><span>CYBERSHIELD <b>AI</b></span></a><nav>{% block public_nav %}<a href="#features">Platform</a><a href="#checks">Security checks</a><a href="{% url 'login' %}">Sign in</a><a class="btn btn-primary nav-cta" href="{% url 'register' %}">Get started <span>↗</span></a>{% endblock %}</nav></header>
+{% if messages %}<div class="public-messages container">{% for message in messages %}<div class="toast-message toast-{{ message.tags }}"><span>{{ message }}</span><button type="button" onclick="this.parentElement.remove()" aria-label="Dismiss">×</button></div>{% endfor %}</div>{% endif %}
+<main>
+{% endif %}
+{% block content %}{% endblock %}
+{% if user.is_authenticated and request.path != '/' %}<footer class="workspace-footer"><span>CYBERSHIELD AI <i>·</i> DEFENSIVE ASSESSMENT</span><span>Only assess authorized targets.</span></footer></main></div>{% else %}</main>{% endif %}
+<script src="{% static 'js/app.js' %}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
